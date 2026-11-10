@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dagestan-Probe</title>
+  <link rel="icon" href="data:,">
+  <style>
+    :root {
+      --bg: #121212;
+      --card: rgba(18, 18, 18, 0.78);
+      --text: #ffffff;
+      --muted: #b3b3b3;
+      --dim: #7a7a7a;
+      --line: rgba(255, 255, 255, 0.12);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #121212 url('load_image.jpg') center / cover fixed no-repeat;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Dark overlay above the background image */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.62);
+      z-index: -1;
+    }
+
+    /* ── Website brand: top-right, outside any card ── */
+    .brand {
+      position: fixed;
+      top: 20px;
+      left: 24px;
+      z-index: 10;
+      text-align: left;
+      font-style: italic;
+      font-weight: 300;
+      font-size: 1.3rem;
+      letter-spacing: 0.05em;
+      line-height: 1.15;
+      color: var(--text);
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.65);
+      padding: 10px 16px;
+      border-radius: 10px;
+      background: rgba(18, 18, 18, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px);
+    }
+
+    .brand .edition {
+      display: block;
+      margin-top: 4px;
+      font-style: normal;
+      font-weight: 500;
+      font-size: 0.58rem;
+      letter-spacing: 0.34em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.55);
+    }
+
+    .is-hidden {
+      display: none !important;
+    }
+
+    /* ── Main stage ── */
+    .container {
+      width: 100%;
+      max-width: 860px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .wordmark {
+      font-size: clamp(2.2rem, 6vw, 3.4rem);
+      font-weight: 300;
+      letter-spacing: 0.12em;
+      color: var(--text);
+      text-align: center;
+      margin-bottom: 36px;
+      background: linear-gradient(135deg, #ffffff, #d8d8d8);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* ── Loading screen ── */
+    .loading-screen {
+      width: min(420px, 90vw);
+      text-align: center;
+    }
+
+    .progress {
+      height: 2px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .progress::after {
+      content: '';
+      display: block;
+      height: 100%;
+      width: 40%;
+      background: #ffffff;
+      border-radius: 2px;
+      animation: progress-slide 1.4s ease-in-out infinite;
+    }
+
+    @keyframes progress-slide {
+      0%   { transform: translateX(-100%); }
+      100% { transform: translateX(350%); }
+    }
+
+    .loading-text {
+      font-size: 0.9rem;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      transition: opacity 0.25s ease;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 36px;
+      color: #666;
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-align: center;
+    }
+
+    /* ── Account page ── */
+    .account-layout {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 28px;
+      justify-content: center;
+      align-items: stretch;
+      width: 100%;
+    }
+
+    .panel {
+      background: var(--card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 34px 30px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .panel h2 {
+      font-size: 1.2rem;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+      margin-bottom: 10px;
+    }
+
+    .panel .hint {
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1.55;
+      margin-bottom: 24px;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 12px 18px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      font: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+    }
+
+    .btn-primary {
+      background: #ffffff;
+      color: #121212;
+    }
+
+    .btn-primary:hover {
+      background: #dedede;
+    }
+
+    .btn-secondary {
+      margin-top: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      border-color: rgba(255, 255, 255, 0.22);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    /* Name form (revealed by "Create New Account") */
+    .name-form {
+      display: none;
+      margin-top: 18px;
+    }
+
+    .name-form.is-open {
+      display: block;
+    }
+
+    .name-input {
+      width: 100%;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      font: inherit;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .name-input::placeholder {
+      color: #6f6f6f;
+    }
+
+    .name-input:focus {
+      border-color: rgba(255, 255, 255, 0.45);
+    }
+
+    /* Existing account list */
+    .account-list {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .account-list.is-open {
+      display: flex;
+    }
+
+    .account-item {
+      width: 100%;
+      text-align: left;
+      padding: 11px 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      font: inherit;
+      font-size: 0.92rem;
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .account-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .empty-note {
+      display: none;
+      margin-top: 14px;
+      color: var(--dim);
+      font-size: 0.8rem;
+      line-height: 1.5;
+    }
+
+    .empty-note.is-open {
+      display: block;
+    }
+
+    /* Quote panel */
+    .quote-panel {
+      max-width: 340px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: left;
+    }
+
+    .quote-text {
+      font-style: italic;
+      font-size: 1rem;
+      line-height: 1.75;
+      color: #d6d6d6;
+    }
+
+    .quote-author {
+      margin-top: 14px;
+      font-size: 0.8rem;
+      letter-spacing: 0.04em;
+      color: #8a8a8a;
+    }
+
+    /* ── Home / placeholder page ── */
+    .done-page {
+      text-align: center;
+      max-width: 540px;
+      padding: 20px;
+    }
+
+    .done-page h2 {
+      font-size: clamp(1.8rem, 5vw, 2.6rem);
+      font-weight: 300;
+      letter-spacing: 0.02em;
+      margin-bottom: 14px;
+    }
+
+    .done-page p {
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+
+    .btn-inline {
+      display: inline-block;
+      padding: 12px 28px;
+      border-radius: 8px;
+      border: none;
+      background: #ffffff;
+      color: #121212;
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .btn-inline:hover {
+      background: #dedede;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 720px) {
+      .brand {
+        top: 14px;
+        left: 14px;
+        font-size: 1.05rem;
+        padding: 8px 12px;
+      }
+
+      .account-layout {
+        gap: 18px;
+      }
+
+      .panel {
+        padding: 26px 22px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .brand .edition {
+        font-size: 0.52rem;
+      }
+
+      .wordmark {
+        margin-bottom: 28px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Website brand — top-right of the page, outside every card -->
+  <div class="brand is-hidden" id="brand" aria-label="Dagestan Probe — Medium Edition">
+    Dagestan Probe
+    <span class="edition">Medium Edition</span>
+  </div>
+
+  <!-- Main stage -->
+  <main class="container" id="app">
+    <h1 class="wordmark">Dagestan-Probe</h1>
+
+    <div class="loading-screen" id="loadingScreen">
+      <div class="progress" aria-hidden="true"></div>
+      <p class="loading-text" id="loadingText">Analyzing project directory&hellip;</p>
+    </div>
+  </main>
+
+  <!-- Footer — hidden while loading, shown only on the account page -->
+  <footer class="footer is-hidden" id="footer">
+    DagestanProbe * Version 0.1
+  </footer>
+
+  <script>
+    'use strict';
+
+    var app = document.getElementById('app');
+    var brand = document.getElementById('brand');
+    var footer = document.getElementById('footer');
+    var loadingText = document.getElementById('loadingText');
+
+    var STORAGE_KEY = 'dagestan_profiles';
+    var LEGACY_KEY = 'dagestan_profile';
+
+    /* ── Quotes ─────────────────────────────── */
+
+    var QUOTES = [
+      { text: '\u201CThe secret of getting ahead is getting started.\u201D', author: 'Mark Twain, author' },
+      { text: '\u201CThe body achieves what the mind believes.\u201D', author: 'Napoleon Hill, author' },
+      { text: '\u201CDon\u2019t count the days, make the days count.\u201D', author: 'Muhammad Ali, boxer' },
+      { text: '\u201CThe only bad workout is the one that didn\u2019t happen.\u201D', author: 'Unknown' },
+      { text: '\u201CDiscipline is doing what you hate to do, but nonetheless doing it like you love it.\u201D', author: 'Mike Tyson, boxer' }
+    ];
+
+    function parseQuotes(raw) {
+      var lines = raw.split(/\r?\n/);
+      var out = [];
+
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i].trim();
+        if (!line) continue;
+
+        // Strip leading numbering such as "1. " or "12) "
+        line = line.replace(/^\d+[\.\)]\s*/, '');
+
+        var sep = line.lastIndexOf('\u2014'); // em dash
+        if (sep === -1) sep = line.lastIndexOf('\u2013'); // en dash
+        if (sep === -1) sep = line.lastIndexOf('--');
+
+        if (sep > -1) {
+          var text = line.slice(0, sep).trim();
+          var author = line.slice(sep + (line.charAt(sep + 1) === '-' ? 2 : 1)).trim();
+          if (text) out.push({ text: text, author: author });
+        } else if (line) {
+          out.push({ text: line, author: '' });
+        }
+      }
+      return out;
+    }
+
+    function loadQuotes() {
+      return fetch('quotes.txt', { cache: 'no-store' })
+        .then(function (res) {
+          if (!res.ok) throw new Error('quotes.txt unavailable');
+          return res.text();
+        })
+        .then(function (raw) {
+          var parsed = parseQuotes(raw);
+          if (parsed.length) QUOTES = parsed;
+        })
+        .catch(function () {
+          /* keep embedded fallback quotes */
+        });
+    }
+
+    function pickQuote() {
+      return QUOTES[Math.floor(Math.random() * QUOTES.length)];
+    }
+
+    /* ── Profiles ───────────────────────────── */
+
+    function loadProfiles() {
+      try {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          var parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            return parsed.filter(function (p) {
+              return p && typeof p.name === 'string' && p.name.trim() !== '';
+            });
+          }
+        }
+      } catch (e) { /* ignore corrupt storage */ }
+
+      // Migrate the old single-profile format
+      try {
+        var legacy = localStorage.getItem(LEGACY_KEY);
+        if (legacy) {
+          var old = JSON.parse(legacy);
+          if (old && typeof old.name === 'string' && old.name.trim() !== '') {
+            var list = [{ name: old.name.trim() }];
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+            localStorage.removeItem(LEGACY_KEY);
+            return list;
+          }
+        }
+      } catch (e) { /* ignore corrupt storage */ }
+
+      return [];
+    }
+
+    function saveProfiles(list) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+      } catch (e) { /* storage full or blocked */ }
+    }
+
+    /* ── Helpers ────────────────────────────── */
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, function (ch) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+      });
+    }
+
+    function wait(ms) {
+      return new Promise(function (resolve) { setTimeout(resolve, ms); });
+    }
+
+    function setLoadingText(text) {
+      loadingText.style.opacity = '0';
+      setTimeout(function () {
+        loadingText.textContent = text;
+        loadingText.style.opacity = '1';
+      }, 180);
+    }
+
+    function showBrand(visible) {
+      brand.classList.toggle('is-hidden', !visible);
+    }
+
+    function showFooter(visible) {
+      footer.classList.toggle('is-hidden', !visible);
+    }
+
+    /* ── Screens ────────────────────────────── */
+
+    function showHome(profile, isReturning) {
+      showBrand(true);
+      showFooter(false);
+
+      var heading = isReturning
+        ? 'Welcome back, ' + escapeHtml(profile.name) + '.'
+        : 'Welcome, ' + escapeHtml(profile.name) + '.';
+
+      app.innerHTML =
+        '<div class="done-page">' +
+          '<h2>' + heading + '</h2>' +
+          '<p>Your profile is ready. Hard training based on Dagestan Style workouts is coming soon.</p>' +
+          '<button class="btn-inline" id="startTraining" type="button">Start Training</button>' +
+        '</div>';
+
+      var start = document.getElementById('startTraining');
+      start.addEventListener('click', function () {
+        start.textContent = 'Coming Soon';
+        start.disabled = true;
+      });
+    }
+
+    function showAccountPage() {
+      showBrand(true);
+      showFooter(true);
+
+      var profiles = loadProfiles();
+      var quote = pickQuote();
+
+      app.innerHTML =
+        '<div class="account-layout">' +
+          '<section class="panel">' +
+            '<h2>Get Started</h2>' +
+            '<p class="hint">Create a new profile or continue with an existing account.</p>' +
+            '<button class="btn btn-primary" id="createAccountBtn" type="button">Create New Account</button>' +
+            '<button class="btn btn-secondary" id="selectAccountBtn" type="button">Select Existing Account</button>' +
+            '<ul class="account-list" id="accountList"></ul>' +
+            '<p class="empty-note" id="emptyNote">No saved accounts yet \u2014 create one to begin.</p>' +
+            '<form class="name-form" id="nameForm" autocomplete="off">' +
+              '<input class="name-input" id="profileName" type="text" placeholder="Your name" maxlength="40" autocomplete="off">' +
+              '<button class="btn btn-primary" type="submit">Create Profile</button>' +
+            '</form>' +
+          '</section>' +
+          '<aside class="panel quote-panel">' +
+            '<p class="quote-text" id="quoteText"></p>' +
+            '<p class="quote-author" id="quoteAuthor"></p>' +
+          '</aside>' +
+        '</div>';
+
+      document.getElementById('quoteText').textContent = quote.text;
+      document.getElementById('quoteAuthor').textContent = quote.author ? '\u2014 ' + quote.author : '';
+
+      var createBtn = document.getElementById('createAccountBtn');
+      var selectBtn = document.getElementById('selectAccountBtn');
+      var nameForm = document.getElementById('nameForm');
+      var nameInput = document.getElementById('profileName');
+      var accountList = document.getElementById('accountList');
+      var emptyNote = document.getElementById('emptyNote');
+
+      createBtn.addEventListener('click', function () {
+        nameForm.classList.add('is-open');
+        accountList.classList.remove('is-open');
+        emptyNote.classList.remove('is-open');
+        nameInput.focus();
+      });
+
+      selectBtn.addEventListener('click', function () {
+        nameForm.classList.remove('is-open');
+        accountList.innerHTML = '';
+
+        var current = loadProfiles();
+        if (!current.length) {
+          accountList.classList.remove('is-open');
+          emptyNote.classList.add('is-open');
+          return;
+        }
+
+        emptyNote.classList.remove('is-open');
+
+        current.forEach(function (profile) {
+          var item = document.createElement('button');
+          item.type = 'button';
+          item.className = 'account-item';
+          item.textContent = profile.name;
+          item.addEventListener('click', function () {
+            showHome(profile, true);
+          });
+          var li = document.createElement('li');
+          li.appendChild(item);
+          accountList.appendChild(li);
+        });
+
+        accountList.classList.add('is-open');
+      });
+
+      nameForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        var name = nameInput.value.trim();
+        if (!name) {
+          nameInput.focus();
+          return;
+        }
+
+        var current = loadProfiles();
+        var existing = null;
+
+        for (var i = 0; i < current.length; i++) {
+          if (current[i].name.toLowerCase() === name.toLowerCase()) {
+            existing = current[i];
+            break;
+          }
+        }
+
+        if (existing) {
+          showHome(existing, true);
+          return;
+        }
+
+        var profile = { name: name };
+        current.push(profile);
+        saveProfiles(current);
+        showHome(profile, false);
+      });
+    }
+
+    /* ── Boot sequence ──────────────────────── */
+
+    function boot() {
+      showBrand(false);
+      showFooter(false);
+
+      loadQuotes()
+        .then(function () {
+          setLoadingText('Analyzing project directory\u2026');
+          return wait(800);
+        })
+        .then(function () {
+          setLoadingText('Checking for personal details\u2026');
+          return wait(900);
+        })
+        .then(function () {
+          var profiles = loadProfiles();
+
+          if (profiles.length > 0) {
+            setLoadingText('Profile found. Preparing your training\u2026');
+            return wait(900).then(function () {
+              showHome(profiles[profiles.length - 1], true);
+            });
+          }
+
+          setLoadingText('No profile found. Preparing setup\u2026');
+          return wait(900).then(function () {
+            showAccountPage();
+          });
+        })
+        .catch(function () {
+          // Never leave the user stuck on the loading screen
+          showAccountPage();
+        });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', boot);
+    } else {
+      boot();
+    }
+  </script>
+</body>
+</html>
